@@ -61,7 +61,7 @@ class CartProduct(models.Model):
         verbose_name_plural = f'Корзина с товарами'
 
     def __str__(self):
-        return "Продукт: {} (для корзины)".format(self.product.title)
+        return "Товар: {} (для корзины)".format(self.product.title)
 
     def save(self, *args, **kwargs):
         self.final_price = self.qty * self.product.price
@@ -73,15 +73,15 @@ class Cart(models.Model):
     Модель корзины
     """
     owner = models.ForeignKey('Customer', null=True, verbose_name='Владелец', on_delete=models.CASCADE)
-    products = models.ManyToManyField(CartProduct, blank=True, related_name='related_cart')
-    total_products = models.PositiveIntegerField(default=0)
+    products = models.ManyToManyField(CartProduct, blank=True, verbose_name='Товары', related_name='related_cart')
+    total_products = models.PositiveIntegerField(default=0, verbose_name='Количество товаров')
     final_price = models.DecimalField(max_digits=9, default=0, decimal_places=2, verbose_name='Общая цена')
-    in_order = models.BooleanField(default=False)
-    for_anonymous_user = models.BooleanField(default=False)
-    session_key = models.CharField(max_length=100, null=True)
+    in_order = models.BooleanField(default=False, verbose_name='В заказе')
+    for_anonymous_user = models.BooleanField(default=False, verbose_name='Анонимный пользователь')
+    session_key = models.CharField(max_length=100, verbose_name='Ключ сессии', null=True)
 
     class Meta:
-        verbose_name = f'Корзина'
+        verbose_name = f'Корзину'
         verbose_name_plural = f'Корзины'
 
     def __str__(self):
