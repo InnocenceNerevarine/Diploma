@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Интернет магазин цифровых товаров Проводка РУ">
+  <meta name="author" content="Илья Сидоров">
+
+
+  <title>Проводка РУ - Магазин цифровых товаров</title>
+    <link rel="shortcut icon" href="/media/elwire.png" type="image/png">
+
+  <!-- Бустрап ядро CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!-- Кастомные стили -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script type="text/javascript" src="{% static 'js/scroll.js' %}"></script>
+    <!-- Шрифты на сайт  -->
+    <link href="https://fonts.googleapis.com/css2?family=Neucha&family=Open+Sans&family=Oswald&family=Rubik&display=swap" rel="stylesheet">
+
+
+
+</head>
+
+<body>
+    <button id="btnScrollToTop">
+        <i class="material-icons"><a href="#">arrow_upward</a></i>
+    </button>
+<div style="background: url(/media/backgr.png)" class="page-holder bg-cover">
+  <!-- Навигация -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <img src="/media/xwire.png" alt="sitelogo" width="45"  class="d-inline-block  align-middle mr-2">
+      <a class="navbar-brand" href="{% url 'base' %}">Проводка РУ</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav">
+            {% if not request.user.is_authenticated %}
+          <li>
+            <a class="nav-link text-white" href="{% url 'login' %}">Войти</a>
+          </li>
+            <li>
+            <a class="nav-link text-white" href="{% url 'registration' %}">Регистрация</a>
+          </li>
+          {% else %}
+              <li class="nav-item">
+                  <span class="navbar-text text-light">Здравствуйте, {% if request.user.is_authenticated %}<span class="badge badge-primary"><a href="{% url 'profile' %}" style="text-decoration: none; font-size: 14px;">{{ request.user.username }}</a></span>{% else %} гоcть!{% endif %}<a href="{% url 'logout' %}">|Выйти --</a></span>
+              </li>
+              <li class="nav-item">
+                 <<span class="navbar-text text-light"><a href="{% url 'profile' %}">Ваш профиль заказов</a></span>
+              </li>
+          {% endif %}
+          </ul>
+          <ul class="navbar-nav ml-auto">
+              <li>
+                  <div class="dropdown show">
+              <a class="btn text-white dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Категории товаров
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  {% for category in categories %}
+                <a class="dropdown-item" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+                  {% endfor %}
+              </div>
+            </div>
+              </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'cart' %}">Корзина <span class="badge badge-pill badge-danger">{{ cart.products.count }}</span></a>
+            <li>
+            <a class="nav-link text-white" href="{% url 'about' %}">О нас</a>
+          </li>
+          </li>
+         </ul>
+      </div>
+    </div>
+  </nav>
+ <main>
+  <!-- Контент страницы -->
+
+  <div class="container">
+
+    <div class="row ">
+
+      <div class="col-lg-3 mt-5">
+        <div class="list-group">
+          {% for category in categories %}
+            <div class="grow">
+        <a href="{{ category.get_absolute_url }}" class="list-group-item list-group-item-action">{{ category.name }} <span class="badge badge-pill badge-dark">{{ category.product_set.count }}</span></a>
+            </div>
+          {% endfor %}
+        </div>
+      {% block productfilter %}
+      {% endblock productfilter %}
+      </div>
+      <div class="col-lg-9">
+        {% block content %}
+        {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+        {% endif %}
+        <div class="row mt-5">
+          {% for product in products %}
+          <div class="col-lg-4 col-md-6 mb-4">
+              <div class="zoom">
+            <div class="card h-100">
+                <div class="card shadow ">
+                    <div class="inner">
+                     <a href="{{ product.get_absolute_url }}"><img class="card-img-top img-fluid"  src="{{ product.image.url }}" alt=""></a>
+                    </div>
+                    </div>
+                </div>
+              <div class="card-body">
+                <h4  class="card-title">
+                  <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                </h4>
+                <h5 class="font-weight-bold">{{ product.price }} руб.</h5>
+                <a href="{% url 'add_to_cart' slug=product.slug %}">
+                  <button class="btn btn-lg btn-success btn-block">Добавить в корзину</button>
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+{% endblock content %}
+      </div>
+    </div>
+  </div>
+</main>
+  <footer class="bg-dark py-1 text-center text-white">
+  <div class="container p-3">
+    <div class="row">
+      <div class="col-lg-5 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase"></h5>
+        <p>
+          Мы не виртуальный интернет-магазин. Мы, Проводка РУ в отличие от других интернет-магазинов, где нельзя осмотреть товар перед покупкой, мы предлагаем делать покупки осмысленно.
+        </p>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase">Ссылки</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a href="https://www.termsfeed.com/blog/sample-privacy-policy-template/" class="text-white">Privacy Term</a>
+          </li>
+          <li>
+            <a href="https://www.termsfeed.com/blog/sample-terms-of-use-template/" class="text-white">Terms of Use</a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase mb-0">Социальные сети</h5>
+
+        <ul class="list-unstyled">
+          <li>
+            <a  href="# " class="text-white"> Instagram
+                <i class="fab fa-instagram"></i>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="text-white">VK</a>
+                <i class="fab fa-vk"></i>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Копирайт -->
+  <div class="text-center " style="background-color: rgba(0, 0, 0, 0.4);">
+    <p class="text-white">© 2021 Copyright: ООО Проводка РУ <br>
+    Все права защищены</p>
+  </div>
+  <!-- Копирайт -->
+</footer>
+
+
+  <!-- Ядро Бутстрап и JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</div>
+</body>
+</html>
