@@ -1,1 +1,1 @@
-web: gunicorn pages_project.wsgi --log-file -
+web: waitress-serve --port=8080 ProvodkaShop.wsgi:application
