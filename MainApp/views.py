@@ -1,4 +1,3 @@
-import stripe
 import operator
 
 from functools import reduce
@@ -156,20 +155,13 @@ class CartView(CartMixin, View):
 class CheckoutView(CartMixin, View):
 
     def get(self, request, *args, **kwargs):
-        stripe.api_key = 'sk_test_51IgrwCEbODxaDCK41IuocujM1pRGfMpdmJhRLmJwVlSf6poqKjJlDFZk7O6i2UlTHSUL1Y4ktnaf14NxLhcgUmov00DL8osPQF   '
 
-        intent = stripe.PaymentIntent.create(
-            amount=int(self.cart.final_price * 100),
-            currency='rub',
-            metadata={'integration_check': 'accept_a_payment'},
-        )
         categories = Category.objects.all()
         form = OrderForm(request.POST or None)
         context = {
             'cart': self.cart,
             'categories': categories,
-            'form': form,
-            'client_secret': intent.client_secret
+            'form': form
         }
         return render(request, 'checkout.html', context)
 
@@ -297,27 +289,3 @@ class AboutView(CartMixin, View):
             'categories': categories
         }
         return render(request, 'about.html', context)
-
-
-class PayedOnlineOrderView(CartMixin, View):
-
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        customer = Customer.objects.get(user=request.user)
-        new_order = Order()
-        new_order.customer = customer
-        new_order.first_name = customer.user.first_name
-        new_order.last_name = customer.user.last_name
-        new_order.phone = customer.phone
-        new_order.address = customer.address
-        new_order.buying_type = Order.BUYING_TYPE_SELF
-        new_order.save()
-        self.cart.in_order = True
-        self.cart.save()
-        new_order.cart = self.cart
-        new_order.status = Order.STATUS_PAYED
-        new_order.save()
-        customer.orders.add(new_order)
-        return JsonResponse({"status": "payed"})
-
-

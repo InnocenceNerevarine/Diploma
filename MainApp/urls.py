@@ -15,7 +15,6 @@ from .views import (
     RegistrationView,
     ProfileView,
     AboutView,
-    PayedOnlineOrderView
 )
 
 
@@ -34,6 +33,5 @@ urlpatterns = [
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('about/', AboutView.as_view(), name='about'),
-    path('payed-online-order/', PayedOnlineOrderView.as_view(), name='make_order'),
-    path('payed-online-orders/', MakeOrderView.as_view(), name='make_order')
+    path('payed-online-order/', MakeOrderView.as_view(), name='make_order')
 ]

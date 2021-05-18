@@ -32,7 +32,7 @@ class Product(models.Model):
     image = models.ImageField(verbose_name='Изображение')
     description = models.TextField(verbose_name='Описание', null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
-    features = models.ManyToManyField("specs.ProductFeatures", blank=True,verbose_name='Характеристики',related_name='features_for_product')
+    features = models.ManyToManyField("specs.ProductFeatures", blank=True, verbose_name='Характеристики',related_name='features_for_product')
 
     class Meta:
         verbose_name = f'Товар'
