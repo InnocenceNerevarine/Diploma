@@ -4,4 +4,4 @@ from ProvodkaShop.wsgi import application
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    serve(application, host='localhost', port='port')
+    serve(application, host='localhost', port=port)
