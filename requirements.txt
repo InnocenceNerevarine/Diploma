@@ -9,7 +9,7 @@ django-classy-tags==2.0.0
 django-crispy-forms==1.11.2
 geographiclib==1.50
 geopy==2.1.0
-gunicorn-20.1.0
+gunicorn==20.1.0
 idna==2.10
 micropython-fcntl==0.0.3
 micropython-ffilib==0.1.2
