@@ -1,1 +1,1 @@
-web: waitress-serve  --listen "*:$PORT"  ProvodkaShop:wsgi:application
+web: py runserver.py
