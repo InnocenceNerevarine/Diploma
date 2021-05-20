@@ -1,1 +1,1 @@
-web: waitress-serve  --listen "*:$PORT" y ProvodkaShop:wsgi:application
+web: waitress-serve  --listen "*:$PORT"  ProvodkaShop:wsgi:application
